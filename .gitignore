@@ -34,3 +34,7 @@ frontend/node_modules/
 # Archivos de sistema
 .DS_Store
 Thumbs.db
+
+# Alembic
+alembic/__pycache__/
+*.pyc
