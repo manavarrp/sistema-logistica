@@ -1,18 +1,46 @@
-from fastapi import FastAPI, status
+"""
+Punto de entrada de la aplicación.
+Registra todos los routers y middlewares.
+"""
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-# Inicializamos la aplicación FastAPI
+
+from src.api.v1.endpoints.envios import router_maritimos, router_terrestres
+from src.shared.config import settings
+from src.shared.exceptions import DomainException
+
 app = FastAPI(
-    title="Logística de Envíos API",
-    description="API para gestionar la logística de envíos, incluyendo rutas, vehículos y entregas.",
-    version="1.0.0"
+    title="Sistema de Gestión Logística",
+    description="API REST para gestión de envíos terrestres y marítimos",
+    version="1.0.0",
+    docs_url="/docs",
+    redoc_url="/redoc",
 )
 
-# Endpoint raíz para verificar que la API está funcionando
-@app.get("/")
+
+# ── MANEJADOR GLOBAL DE EXCEPCIONES DEL DOMINIO ──────────────
+@app.exception_handler(DomainException)
+async def domain_exception_handler(request: Request, exc: DomainException):
+    return JSONResponse(status_code=400, content={"detail": exc.message})
+
+
+# ── ROUTERS ──────────────────────────────────────────────────
+PREFIX = "/api/v1"
+
+
+app.include_router(router_terrestres, prefix=PREFIX)
+app.include_router(router_maritimos,  prefix=PREFIX)
+
+
+# ── HEALTH ───────────────────────────────────────────────────
+@app.get("/", tags=["Health"])
 def root():
-    #return "Bienvenido a la API de Logística de Envíos!"
-    return JSONResponse(
-            status_code=status.HTTP_200_OK,
-            content={"message": "Bienvenido a la API de Logística de Envíos!"}
-            )
+    return {"status": "running", "docs": "/docs", "version": "1.0.0"}
+
+
+@app.get("/health", tags=["Health"])
+def health():
+    return {"status": "healthy"}
+
