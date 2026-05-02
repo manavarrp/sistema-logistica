@@ -14,8 +14,16 @@ from pydantic import BaseModel, EmailStr, Field, field_validator
 
 # ── AUTH ─────────────────────────────────────────────────────
 class RegisterRequest(BaseModel):
+    """
+    El registro crea usuario + cliente en una sola operación atómica.
+    nombre_completo es requerido porque el perfil de cliente
+    se crea al mismo tiempo que el usuario.
+    """
     email: EmailStr
     password: str = Field(..., min_length=6)
+    nombre_completo: str = Field(..., min_length=3, max_length=200)
+    telefono: Optional[str] = Field(None, max_length=50)
+    direccion: Optional[str] = None
 
 
 class LoginRequest(BaseModel):
@@ -24,8 +32,13 @@ class LoginRequest(BaseModel):
 
 
 class TokenResponse(BaseModel):
+    """
+    Incluye cliente_id para que el frontend pueda asociar
+    envíos al cliente autenticado sin petición adicional.
+    """
     access_token: str
     token_type: str = "bearer"
+    cliente_id: int
 
 
 class UsuarioResponse(BaseModel):
@@ -58,6 +71,11 @@ class ClienteResponse(BaseModel):
     direccion: Optional[str]
 
     model_config = {"from_attributes": True}
+
+
+class RegisterResponse(BaseModel):
+    cliente: ClienteResponse
+    token: TokenResponse
 
 
 # ── PRODUCTOS ────────────────────────────────────────────────

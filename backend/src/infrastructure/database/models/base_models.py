@@ -24,6 +24,7 @@ class Cliente(Base):
     __tablename__ = "clientes"
 
     id = Column(Integer, primary_key=True, index=True)
+    usuario_id = Column(Integer, ForeignKey("usuarios.id", ondelete="SET NULL"), unique=True)
     nombre_completo = Column(String(200), nullable=False)
     email = Column(String(100), unique=True, nullable=False, index=True)
     telefono = Column(String(50))

@@ -30,22 +30,18 @@ def obtener_usuario_por_email(db: Session, email: str) -> Usuario | None:
 # ── CLIENTES ────────────────────────────────────────────────
 def crear_cliente(
     db: Session,
-    usuario_id: int,
     nombre_completo: str,
     email: str,
     telefono: str | None = None,
     direccion: str | None = None,
+    usuario_id: int | None = None,
 ) -> Cliente:
-    """
-    Crea el perfil de cliente vinculado a un usuario existente.
-    Siempre se llama dentro de la misma transacción que crear_usuario.
-    """
     cliente = Cliente(
-        usuario_id=usuario_id,
         nombre_completo=nombre_completo,
         email=email,
         telefono=telefono,
         direccion=direccion,
+        usuario_id=usuario_id,
     )
     db.add(cliente)
     try:
@@ -57,11 +53,39 @@ def crear_cliente(
         raise DuplicateError(f"El email '{email}' ya está registrado")
 
 
-def obtener_cliente_por_usuario(db: Session, usuario_id: int) -> Cliente:
-    """Obtiene el cliente asociado a un usuario autenticado."""
-    cliente = db.query(Cliente).filter(Cliente.usuario_id == usuario_id).first()
-    if not cliente:
-        raise NotFoundError(f"No hay cliente asociado al usuario {usuario_id}")
+def obtener_cliente_por_usuario_id(db: Session, usuario_id: int) -> Cliente | None:
+    """Busca un cliente por usuario_id. Retorna None si no existe."""
+    return db.query(Cliente).filter(Cliente.usuario_id == usuario_id).first()
+
+
+def get_or_create_cliente(db: Session, usuario_id: int, email: str) -> Cliente:
+    """
+    Obtiene el cliente por usuario_id o lo crea si no existe.
+
+    Regla de negocio:
+      - El usuario se registra solo en tabla usuarios (sin cliente aún).
+      - La primera vez que crea un envío, este método crea el registro
+        en clientes automáticamente y lo vincula por usuario_id.
+      - Si ya existe, lo retorna directamente.
+
+    El nombre_completo es provisional (derivado del email).
+    El cliente puede actualizarlo después desde su perfil.
+
+    Nota: usa flush() para no hacer commit — la transacción
+    la cierra el repositorio de envíos al final.
+    """
+    cliente = obtener_cliente_por_usuario_id(db, usuario_id)
+    if cliente:
+        return cliente
+
+    nombre_provisional = email.split("@")[0].replace(".", " ").title()
+    cliente = Cliente(
+        usuario_id=usuario_id,
+        nombre_completo=nombre_provisional,
+        email=email,
+    )
+    db.add(cliente)
+    db.flush()
     return cliente
 
 
