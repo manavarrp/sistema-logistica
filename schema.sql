@@ -25,6 +25,7 @@ CREATE INDEX idx_usuarios_email ON usuarios(email);
 -- ============================================================
 CREATE TABLE clientes (
     id SERIAL PRIMARY KEY,
+    usuario_id INTEGER UNIQUE REFERENCES usuarios(id) ON DELETE SET NULL,
     nombre_completo VARCHAR(200) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     telefono VARCHAR(50),
@@ -34,6 +35,7 @@ CREATE TABLE clientes (
 );
 
 CREATE INDEX idx_clientes_email ON clientes(email);
+CREATE INDEX idx_clientes_usuario_id ON clientes(usuario_id);
 
 -- ============================================================
 -- TABLA: productos
