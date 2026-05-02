@@ -1,31 +1,32 @@
+version: "3.9"
+
 services:
   postgres:
     image: postgres:15
-    container_name: logistica_postgres
+    container_name: logistica_bd
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - "${POSTGRES_PORT}:5432"
+      - "5433:5432"   # ✅ CORRECTO (host:container)
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pgdata2:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 10
 
-
   backend:
     build: ./backend
-    container_name: logistica_backend
+    container_name: logistica_back
     restart: unless-stopped
     volumes:
       - ./backend:/app
     ports:
-      - "${BACKEND_PORT}:8000"
+      - "8001:8000"
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       - SECRET_KEY=${SECRET_KEY}
@@ -35,22 +36,19 @@ services:
       postgres:
         condition: service_healthy
 
-
   frontend:
     build: ./frontend
-    container_name: logistica_frontend
+    container_name: logistica_front
     restart: unless-stopped
     volumes:
       - ./frontend:/app
-      - /app/node_modules   # evita conflicto con node_modules local
+      - /app/node_modules
     ports:
-      - "${FRONTEND_PORT}:5173"
+      - "5174:5173"
     environment:
-      - VITE_API_URL=${VITE_API_URL}
+      - VITE_API_URL=http://localhost:8001
     depends_on:
       - backend
 
-
 volumes:
-  pgdata:
-
+  pgdata2:

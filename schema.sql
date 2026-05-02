@@ -188,12 +188,18 @@ INSERT INTO puertos (nombre, ubicacion, ciudad, pais) VALUES
 -- Productos terrestres
 INSERT INTO productos (tipo_producto, precio_unitario, tipo_logistica, descripcion) VALUES 
 ('Electrodomésticos', 50000.00, 'terrestre', 'Neveras, lavadoras, estufas'),
-('Muebles', 35000.00, 'terrestre', 'Mesas, sillas, estanterías');
+('Muebles', 35000.00, 'terrestre', 'Mesas, sillas, estanterías'),
+('Materiales de Construcción', 25000.00, 'terrestre', 'Cemento, ladrillos y tubería'),
+('Alimentos Procesados', 12000.00, 'terrestre', 'Productos no perecederos en cajas'),
+('Repuestos Automotrices', 45000.00, 'terrestre', 'Frenos, filtros y partes de motor');
 
 -- Productos marítimos
 INSERT INTO productos (tipo_producto, precio_unitario, tipo_logistica, descripcion) VALUES 
 ('Contenedores 20ft', 850000.00, 'maritimo', 'Carga general internacional'),
-('Vehículos', 1200000.00, 'maritimo', 'Automóviles y motos');
+('Vehículos', 1200000.00, 'maritimo', 'Automóviles y motos'),
+('Equipos Médicos', 2500000.00, 'maritimo', 'Resonadores y equipos de alta precisión'),
+('Materia Prima (Caucho)', 150000.00, 'maritimo', 'Rollos industriales de caucho'),
+('Electrónica de Consumo', 950000.00, 'maritimo', 'Lotes de smartphones y laptops');
 
 -- ============================================================
 -- COMENTARIOS INFORMATIVOS
