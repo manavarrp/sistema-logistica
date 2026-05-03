@@ -33,7 +33,7 @@ import { toast } from 'sonner';
 
 const baseSchema = z.object({
   producto_id: z.string().min(1, 'Seleccione un producto'),
-  cantidad_producto: z.number().min(1, 'Mínimo 1'),
+  cantidad_producto: z.number().min(1, 'Mínimo 1').max(10000, 'Máximo 10,000 unidades'),
   fecha_entrega: z.string().min(1, 'Requerido').refine((val) => {
     const selectedDate = new Date(val + 'T00:00:00');
     const today = new Date();
@@ -65,7 +65,25 @@ export const EnvioModal: React.FC = () => {
 
   const [tipoLogistica, setTipoLogistica] = useState<'terrestre' | 'maritimo' | null>(null);
 
-  const generateGuia = () => Math.random().toString(36).substring(2, 12).toUpperCase();
+  const generateGuia = (tipo?: string) => {
+    const randomPart = Math.random().toString(36).substring(2, 9).toUpperCase();
+    if (tipo === 'terrestre') return `TER${randomPart}`;
+    if (tipo === 'maritimo') return `MAR${randomPart}`;
+    return randomPart.padEnd(10, '0');
+  };
+
+  const generatePlaca = () => {
+    const letters = Math.random().toString(36).substring(2, 5).toUpperCase().replace(/[0-9]/g, 'X');
+    const numbers = Math.floor(100 + Math.random() * 900);
+    return `${letters}${numbers}`;
+  };
+
+  const generateFlota = () => {
+    const letters = Math.random().toString(36).substring(2, 5).toUpperCase().replace(/[0-9]/g, 'X');
+    const numbers = Math.floor(1000 + Math.random() * 9000);
+    const lastLetter = Math.random().toString(36).substring(2, 3).toUpperCase().replace(/[0-9]/g, 'Z');
+    return `${letters}${numbers}${lastLetter}`;
+  };
 
   const currentSchema =
     tipoLogistica === 'terrestre'
@@ -80,7 +98,7 @@ export const EnvioModal: React.FC = () => {
       producto_id: '',
       cantidad_producto: 1,
       fecha_entrega: '',
-      numero_guia: generateGuia(),
+      numero_guia: '',
       placa: '',
       bodega_id: '',
       numero_flota: '',
@@ -95,11 +113,22 @@ export const EnvioModal: React.FC = () => {
       const prod = productos.find((p) => p.id.toString() === watchProductoId);
       if (prod) {
         setTipoLogistica(prod.tipo_logistica);
+        
+        // Auto-llenado transparente
+        form.setValue('numero_guia', generateGuia(prod.tipo_logistica));
+        
+        if (prod.tipo_logistica === 'terrestre') {
+          form.setValue('placa', generatePlaca());
+          form.setValue('numero_flota', '');
+        } else {
+          form.setValue('numero_flota', generateFlota());
+          form.setValue('placa', '');
+        }
       }
     } else {
       setTipoLogistica(null);
     }
-  }, [watchProductoId, productos]);
+  }, [watchProductoId, productos, form]);
 
   //Limpiar estado al cerrar/abrir el modal
   useEffect(() => {
@@ -140,7 +169,11 @@ export const EnvioModal: React.FC = () => {
 
       closeModal();
     } catch (error: any) {
-      toast.error(error.response?.data?.detail || 'Error al crear el envío');
+      const detail = error.response?.data?.detail;
+      const message = Array.isArray(detail) 
+        ? detail[0]?.msg 
+        : detail || 'Error al crear el envío';
+      toast.error(message);
     }
   };
 
@@ -224,7 +257,8 @@ export const EnvioModal: React.FC = () => {
                     <FormLabel className="text-zinc-300">Número de Guía</FormLabel>
                     <FormControl>
                       <Input
-                        className="bg-zinc-800/50 border-zinc-700 text-white uppercase font-mono"
+                        disabled
+                        className="bg-zinc-800/50 border-zinc-700 text-white uppercase font-mono cursor-not-allowed opacity-70"
                         maxLength={10}
                         {...field}
                       />
@@ -245,8 +279,9 @@ export const EnvioModal: React.FC = () => {
                       <FormLabel className="text-blue-300">Placa Vehículo</FormLabel>
                       <FormControl>
                         <Input
+                          disabled
                           placeholder="AAA000"
-                          className="bg-zinc-800/50 border-zinc-700 text-white uppercase"
+                          className="bg-zinc-800/50 border-zinc-700 text-white uppercase cursor-not-allowed opacity-70"
                           maxLength={6}
                           {...field}
                         />
@@ -292,8 +327,9 @@ export const EnvioModal: React.FC = () => {
                       <FormLabel className="text-purple-300">Número de Flota</FormLabel>
                       <FormControl>
                         <Input
+                          disabled
                           placeholder="AAA0000A"
-                          className="bg-zinc-800/50 border-zinc-700 text-white uppercase"
+                          className="bg-zinc-800/50 border-zinc-700 text-white uppercase cursor-not-allowed opacity-70"
                           maxLength={8}
                           {...field}
                         />

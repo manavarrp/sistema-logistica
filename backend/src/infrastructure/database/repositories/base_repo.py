@@ -11,15 +11,19 @@ from src.shared.exceptions import DuplicateError, NotFoundError
 
 
 # ── USUARIOS ────────────────────────────────────────────────
-def crear_usuario(db: Session, email: str, password_hash: str) -> Usuario:
+def crear_usuario(db: Session, email: str, password_hash: str, commit: bool = True) -> Usuario:
     usuario = Usuario(email=email, password_hash=password_hash)
     db.add(usuario)
     try:
-        db.commit()
-        db.refresh(usuario)
+        if commit:
+            db.commit()
+            db.refresh(usuario)
+        else:
+            db.flush()
         return usuario
     except IntegrityError:
-        db.rollback()
+        if commit:
+            db.rollback()
         raise DuplicateError(f"El email '{email}' ya está registrado")
 
 
@@ -35,6 +39,7 @@ def crear_cliente(
     telefono: str | None = None,
     direccion: str | None = None,
     usuario_id: int | None = None,
+    commit: bool = True,
 ) -> Cliente:
     cliente = Cliente(
         nombre_completo=nombre_completo,
@@ -45,11 +50,15 @@ def crear_cliente(
     )
     db.add(cliente)
     try:
-        db.commit()
-        db.refresh(cliente)
+        if commit:
+            db.commit()
+            db.refresh(cliente)
+        else:
+            db.flush()
         return cliente
     except IntegrityError:
-        db.rollback()
+        if commit:
+            db.rollback()
         raise DuplicateError(f"El email '{email}' ya está registrado")
 
 

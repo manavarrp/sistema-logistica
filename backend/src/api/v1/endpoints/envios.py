@@ -27,7 +27,7 @@ from src.application.use_cases.envio_use_cases import (
     uc_obtener_envio_maritimo, uc_obtener_envio_terrestre,
 )
 from src.infrastructure.database.models import Usuario
-from src.shared.exceptions import DomainException
+from src.shared.exceptions import DomainException, NotFoundError
 
 _auth = Depends(get_current_user)
 
@@ -114,8 +114,10 @@ def listar_terrestres(
 def obtener_terrestre(envio_id: int, db: Session = Depends(get_db)):
     try:
         return _map_terrestre(uc_obtener_envio_terrestre(db, envio_id))
-    except DomainException as e:
+    except NotFoundError as e:
         raise HTTPException(status_code=404, detail=e.message)
+    except DomainException as e:
+        raise HTTPException(status_code=400, detail=e.message)
 
 
 @router_terrestres.patch("/{envio_id}/estado", response_model=EnvioTerrestreResponse, dependencies=[_auth])
@@ -124,6 +126,8 @@ def cambiar_estado_terrestre(envio_id: int, body: EstadoUpdate, db: Session = De
         return _map_terrestre(
             uc_cambiar_estado_terrestre(db, CambiarEstadoDTO(envio_id=envio_id, nuevo_estado=body.estado))
         )
+    except NotFoundError as e:
+        raise HTTPException(status_code=404, detail=e.message)
     except DomainException as e:
         raise HTTPException(status_code=400, detail=e.message)
 
@@ -172,8 +176,10 @@ def listar_maritimos(
 def obtener_maritimo(envio_id: int, db: Session = Depends(get_db)):
     try:
         return _map_maritimo(uc_obtener_envio_maritimo(db, envio_id))
-    except DomainException as e:
+    except NotFoundError as e:
         raise HTTPException(status_code=404, detail=e.message)
+    except DomainException as e:
+        raise HTTPException(status_code=400, detail=e.message)
 
 
 @router_maritimos.patch("/{envio_id}/estado", response_model=EnvioMaritimoResponse, dependencies=[_auth])
@@ -182,5 +188,7 @@ def cambiar_estado_maritimo(envio_id: int, body: EstadoUpdate, db: Session = Dep
         return _map_maritimo(
             uc_cambiar_estado_maritimo(db, CambiarEstadoDTO(envio_id=envio_id, nuevo_estado=body.estado))
         )
+    except NotFoundError as e:
+        raise HTTPException(status_code=404, detail=e.message)
     except DomainException as e:
         raise HTTPException(status_code=400, detail=e.message)

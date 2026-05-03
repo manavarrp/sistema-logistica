@@ -13,42 +13,55 @@ from src.api.security.jwt_handler import (
 )
 from src.application.dto import LoginDTO, RegistrarUsuarioDTO, TokenDTO, RegistroConTokenDTO, ClienteDTO
 from src.infrastructure.database.repositories.base_repo import crear_usuario, crear_cliente, obtener_cliente_por_usuario_id
-from src.shared.exceptions import BusinessRuleError
+from src.shared.exceptions import BusinessRuleError, DuplicateError
+from sqlalchemy.exc import IntegrityError
 
 
 def uc_registrar_usuario(db: Session, dto: RegistrarUsuarioDTO) -> RegistroConTokenDTO:
     """Registra un nuevo usuario y su perfil de cliente de forma atómica."""
-    # 1. Crear usuario
-    usuario = crear_usuario(db, email=dto.email, password_hash=hash_password(dto.password))
-    
-    # 2. Crear cliente asociado
-    cliente = crear_cliente(
-        db,
-        nombre_completo=dto.nombre_completo,
-        email=dto.email,
-        telefono=dto.telefono,
-        direccion=dto.direccion,
-        usuario_id=usuario.id
-    )
-    
-    # 3. Generar token
-    access_token = create_access_token(
-        email=usuario.email,
-        usuario_id=usuario.id,
-        cliente_id=cliente.id
-    )
-    
-    # 4. Construir DTO de respuesta combinada
-    cliente_dto = ClienteDTO(
-        id=cliente.id,
-        nombre_completo=cliente.nombre_completo,
-        email=cliente.email,
-        telefono=cliente.telefono,
-        direccion=cliente.direccion
-    )
-    token_dto = TokenDTO(access_token=access_token, cliente_id=cliente.id)
-    
-    return RegistroConTokenDTO(cliente=cliente_dto, token=token_dto)
+    try:
+        # 1. Crear usuario
+        usuario = crear_usuario(db, email=dto.email, password_hash=hash_password(dto.password), commit=False)
+        
+        # 2. Crear cliente asociado
+        cliente = crear_cliente(
+            db,
+            nombre_completo=dto.nombre_completo,
+            email=dto.email,
+            telefono=dto.telefono,
+            direccion=dto.direccion,
+            usuario_id=usuario.id,
+            commit=False
+        )
+        
+        db.commit()
+        db.refresh(cliente)
+        
+        # 3. Generar token
+        access_token = create_access_token(
+            email=usuario.email,
+            usuario_id=usuario.id,
+            cliente_id=cliente.id
+        )
+        
+        # 4. Construir DTO de respuesta combinada
+        cliente_dto = ClienteDTO(
+            id=cliente.id,
+            nombre_completo=cliente.nombre_completo,
+            email=cliente.email,
+            telefono=cliente.telefono,
+            direccion=cliente.direccion
+        )
+        token_dto = TokenDTO(access_token=access_token, cliente_id=cliente.id)
+        
+        return RegistroConTokenDTO(cliente=cliente_dto, token=token_dto)
+        
+    except IntegrityError:
+        db.rollback()
+        raise DuplicateError(f"El email '{dto.email}' ya está registrado")
+    except Exception as e:
+        db.rollback()
+        raise e
 
 
 def uc_login(db: Session, dto: LoginDTO) -> TokenDTO:
@@ -58,11 +71,12 @@ def uc_login(db: Session, dto: LoginDTO) -> TokenDTO:
         raise BusinessRuleError("Credenciales incorrectas")
         
     cliente = obtener_cliente_por_usuario_id(db, user.id)
-    cliente_id = cliente.id if cliente else 0  # En caso de que falle o no exista
+    if not cliente:
+        raise BusinessRuleError("El usuario no tiene un perfil de cliente asociado")
     
     token = create_access_token(
         email=user.email,
         usuario_id=user.id,
-        cliente_id=cliente_id
+        cliente_id=cliente.id
     )
-    return TokenDTO(access_token=token, cliente_id=cliente_id)
+    return TokenDTO(access_token=token, cliente_id=cliente.id)

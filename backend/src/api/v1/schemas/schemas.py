@@ -142,7 +142,7 @@ class PuertoResponse(BaseModel):
 class EnvioTerrestreCreate(BaseModel):
     cliente_id: int
     producto_id: int
-    cantidad_producto: int = Field(..., gt=0)
+    cantidad_producto: int = Field(..., gt=0, le=10000)
     fecha_entrega: date
     placa: str = Field(..., pattern=r'^[A-Za-z]{3}[0-9]{3}$')
     numero_guia: str = Field(..., min_length=10, max_length=10)
@@ -177,7 +177,7 @@ class EnvioTerrestreResponse(BaseModel):
 class EnvioMaritimoCreate(BaseModel):
     cliente_id: int
     producto_id: int
-    cantidad_producto: int = Field(..., gt=0)
+    cantidad_producto: int = Field(..., gt=0, le=10000)
     fecha_entrega: date
     numero_flota: str = Field(..., pattern=r'^[A-Za-z]{3}[0-9]{4}[A-Za-z]$')
     numero_guia: str = Field(..., min_length=10, max_length=10)
