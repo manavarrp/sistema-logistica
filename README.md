@@ -91,6 +91,15 @@ Una vez que Docker termine de levantar los contenedores, podrás acceder a:
 
 ---
 
+## ⚠️ Notas Importantes de Desarrollo
+
+### Advertencias de Importación en el Editor (IDE)
+Es posible que al abrir el proyecto en VS Code veas errores o advertencias en los `imports` (subrayados en rojo). 
+- **Razón**: Las librerías de Python y Node.js están instaladas **dentro de los contenedores de Docker**, no necesariamente en tu máquina local.
+- **Impacto**: Esto **NO afecta la ejecución** del proyecto. El sistema funcionará perfectamente al ejecutar `docker compose up`. 
+
+---
+
 ## 🏗️ Stack Tecnológico
 - **Frontend**: React 18, TypeScript, Vite, Tailwind CSS, Shadcn UI, Zustand.
 - **Backend**: Python 3.11, FastAPI, SQLAlchemy.

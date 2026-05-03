@@ -54,7 +54,7 @@ const maritimoSchema = baseSchema.extend({
 });
 
 export const EnvioModal: React.FC = () => {
-  // ✅ Se agrega payload a la desestructuración
+  //  Se agrega payload a la desestructuración
   const { activeModal, closeModal, payload } = useModalStore();
   const { clienteId } = useAuthStore();
   const isOpen = activeModal === 'crear-envio';
@@ -101,7 +101,7 @@ export const EnvioModal: React.FC = () => {
     }
   }, [watchProductoId, productos]);
 
-  // ✅ Limpiar estado al cerrar/abrir el modal
+  //Limpiar estado al cerrar/abrir el modal
   useEffect(() => {
     if (!isOpen) {
       form.reset();
@@ -115,8 +115,8 @@ export const EnvioModal: React.FC = () => {
       return;
     }
     try {
-      const body = { 
-        ...data, 
+      const body = {
+        ...data,
         producto_id: parseInt(data.producto_id, 10),
         cliente_id: clienteId,
         placa: data.placa?.toUpperCase(),
@@ -125,15 +125,15 @@ export const EnvioModal: React.FC = () => {
 
       if (tipoLogistica === 'terrestre') {
         body.bodega_id = parseInt(data.bodega_id, 10);
-        // ✅ Usa la función que viene del payload (del Dashboard)
+        // Usa la función que viene del payload (del Dashboard)
         await payload.crearTerrestre!(body);
       } else {
         body.puerto_id = parseInt(data.puerto_id, 10);
-        // ✅ Usa la función que viene del payload (del Dashboard)
+        // Usa la función que viene del payload (del Dashboard)
         await payload.crearMaritimo!(body);
       }
 
-      // ✅ Refrescar el panel si existe la función en el payload
+      // Refrescar el panel si existe la función en el payload
       if (payload.onRefresh) {
         payload.onRefresh();
       }

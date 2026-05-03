@@ -61,14 +61,14 @@ export const EditarEstadoModal: React.FC = () => {
             } else {
                 await cambiarMaritimo(payload.envioId, data.estado)
             }
-            
+
             if (payload.onRefresh) {
                 payload.onRefresh()
             }
-            
+
             closeModal()
         } catch {
-            // El hook ya mostró el error, no necesitas hacer nada aquí
+
         }
     }
 

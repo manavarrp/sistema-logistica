@@ -14,7 +14,7 @@ engine = create_engine(
     settings.DATABASE_URL,
     pool_pre_ping=True,
     echo=settings.DEBUG,
-    connect_args={"options": "-c client_encoding=utf8"} # ✅ Fuerza UTF-8
+    connect_args={"options": "-c client_encoding=utf8"} # Fuerza UTF-8
 )
 
 SessionLocal = sessionmaker(

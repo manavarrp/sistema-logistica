@@ -46,8 +46,8 @@ export const DashboardPage: React.FC = () => {
   // ✅ Pasarlos en el payload del modal
   const handleNuevoEnvio = () => {
     openModal('crear-envio', {
-      crearTerrestre,             // ← agregar
-      crearMaritimo,              // ← agregar
+      crearTerrestre,
+      crearMaritimo,
       onRefresh: () => {
         refetchTerrestres();
         refetchMaritimos();
