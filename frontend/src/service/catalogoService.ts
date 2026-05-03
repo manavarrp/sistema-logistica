@@ -2,7 +2,7 @@
  * Servicios para catálogos: Productos, Bodegas, Puertos.
  * Son de solo lectura desde el frontend del cliente.
  */
-import httpClient from '@/axios/httpClient'
+import httpClient from '@/axios/httpclient'
 import type { Bodega, Producto, Puerto } from '@/interfaces'
 
 export const productoService = {
