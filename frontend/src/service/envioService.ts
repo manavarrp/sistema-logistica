@@ -2,7 +2,7 @@
  * Servicios para envíos terrestres y marítimos.
  * Sigue el flujo: axios → service → hook → componente
  */
-import httpClient from '@/axios/httpClient'
+import httpClient from '@/axios/httpclient'
 import type {
   CrearEnvioMaritimoRequest,
   CrearEnvioTerrestreRequest,
