@@ -94,12 +94,13 @@ def crear_envio_terrestre(
 
 
 def listar_envios_terrestres(
-    db: Session, skip: int = 0, limit: int = 100
+    db: Session, cliente_id: int, skip: int = 0, limit: int = 100
 ) -> list[tuple[Envio, EnvioTerrestre]]:
-    """Retorna envíos terrestres con su detalle en una sola query (JOIN)."""
+    """Retorna envíos terrestres filtrados por cliente en una sola query (JOIN)."""
     rows = (
         db.query(Envio, EnvioTerrestre)
         .join(EnvioTerrestre, Envio.id == EnvioTerrestre.envio_id)
+        .filter(Envio.cliente_id == cliente_id)
         .offset(skip)
         .limit(limit)
         .all()
@@ -204,12 +205,13 @@ def crear_envio_maritimo(
 
 
 def listar_envios_maritimos(
-    db: Session, skip: int = 0, limit: int = 100
+    db: Session, cliente_id: int, skip: int = 0, limit: int = 100
 ) -> list[tuple[Envio, EnvioMaritimo]]:
-    """Retorna envíos marítimos con su detalle en una sola query (JOIN)."""
+    """Retorna envíos marítimos filtrados por cliente en una sola query (JOIN)."""
     rows = (
         db.query(Envio, EnvioMaritimo)
         .join(EnvioMaritimo, Envio.id == EnvioMaritimo.envio_id)
+        .filter(Envio.cliente_id == cliente_id)
         .offset(skip)
         .limit(limit)
         .all()

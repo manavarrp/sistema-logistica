@@ -44,12 +44,12 @@ const baseSchema = z.object({
 });
 
 const terrestreSchema = baseSchema.extend({
-  placa: z.string().regex(/^[A-Z]{3}[0-9]{3}$/, 'Formato AAA000'),
+  placa: z.string().regex(/^[A-Za-z]{3}[0-9]{3}$/, 'Formato AAA000'),
   bodega_id: z.string().min(1, 'Requerido'),
 });
 
 const maritimoSchema = baseSchema.extend({
-  numero_flota: z.string().regex(/^[A-Z]{3}[0-9]{4}[A-Z]$/, 'Formato AAA0000A'),
+  numero_flota: z.string().regex(/^[A-Za-z]{3}[0-9]{4}[A-Za-z]$/, 'Formato AAA0000A'),
   puerto_id: z.string().min(1, 'Requerido'),
 });
 
@@ -118,7 +118,9 @@ export const EnvioModal: React.FC = () => {
       const body = { 
         ...data, 
         producto_id: parseInt(data.producto_id, 10),
-        cliente_id: clienteId // ✅ Se agrega el cliente_id desde el store
+        cliente_id: clienteId,
+        placa: data.placa?.toUpperCase(),
+        numero_flota: data.numero_flota?.toUpperCase()
       };
 
       if (tipoLogistica === 'terrestre') {
