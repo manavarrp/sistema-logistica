@@ -100,6 +100,18 @@ Es posible que al abrir el proyecto en VS Code veas errores o advertencias en lo
 
 ---
 
+## 🧪 Pruebas y Calidad (Testing)
+
+El sistema cuenta con una robusta suite de pruebas automatizadas que cubren tanto la lógica de negocio como la integridad de la API.
+
+### Cómo ejecutar las pruebas (Desde Docker):
+Ejecuta el siguiente comando para correr los 101 tests:
+```bash
+docker exec -e PYTHONPATH=. logistica_back pytest tests/
+```
+
+---
+
 ## 🏗️ Stack Tecnológico
 - **Frontend**: React 18, TypeScript, Vite, Tailwind CSS, Shadcn UI, Zustand.
 - **Backend**: Python 3.11, FastAPI, SQLAlchemy.
