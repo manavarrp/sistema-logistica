@@ -169,10 +169,10 @@ CREATE TRIGGER update_envios_updated_at BEFORE UPDATE ON envios
 INSERT INTO usuarios (email, password_hash) VALUES 
 ('admin@logistica.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyNqJVrXkZZi');
 
--- Clientes
-INSERT INTO clientes (nombre_completo, email, telefono, direccion) VALUES 
-('Juan Pérez', 'juan.perez@email.com', '3001234567', 'Calle 50 #23-45, Medellín'),
-('María García', 'maria.garcia@email.com', '3109876543', 'Carrera 70 #80-12, Bogotá');
+-- Cliente vinculado al usuario de prueba
+INSERT INTO clientes (usuario_id, nombre_completo, email, telefono, direccion) 
+SELECT id, 'Usuario de Prueba', email, '3001234567', 'Calle 50 #23-45, Medellín'
+FROM usuarios WHERE email = 'admin@logistica.com';
 
 -- Bodegas
 INSERT INTO bodegas (nombre, ubicacion, ciudad, pais) VALUES 
