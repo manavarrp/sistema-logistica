@@ -12,8 +12,9 @@ from src.shared.config import settings
 
 engine = create_engine(
     settings.DATABASE_URL,
-    pool_pre_ping=True,   # Detecta conexiones caídas antes de usarlas
-    echo=settings.DEBUG,  # Loguea SQL generado solo en desarrollo
+    pool_pre_ping=True,
+    echo=settings.DEBUG,
+    connect_args={"options": "-c client_encoding=utf8"} # ✅ Fuerza UTF-8
 )
 
 SessionLocal = sessionmaker(

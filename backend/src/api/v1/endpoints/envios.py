@@ -100,9 +100,14 @@ def crear_terrestre(
         raise HTTPException(status_code=400, detail=e.message)
 
 
-@router_terrestres.get("/", response_model=list[EnvioTerrestreResponse], dependencies=[_auth])
-def listar_terrestres(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    return [_map_terrestre(dto) for dto in uc_listar_envios_terrestres(db, skip, limit)]
+@router_terrestres.get("/", response_model=list[EnvioTerrestreResponse])
+def listar_terrestres(
+    skip: int = 0, 
+    limit: int = 100, 
+    db: Session = Depends(get_db),
+    cliente_id: int = Depends(get_current_cliente_id)
+):
+    return [_map_terrestre(dto) for dto in uc_listar_envios_terrestres(db, cliente_id, skip, limit)]
 
 
 @router_terrestres.get("/{envio_id}", response_model=EnvioTerrestreResponse, dependencies=[_auth])
@@ -153,9 +158,14 @@ def crear_maritimo(
         raise HTTPException(status_code=400, detail=e.message)
 
 
-@router_maritimos.get("/", response_model=list[EnvioMaritimoResponse], dependencies=[_auth])
-def listar_maritimos(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    return [_map_maritimo(dto) for dto in uc_listar_envios_maritimos(db, skip, limit)]
+@router_maritimos.get("/", response_model=list[EnvioMaritimoResponse])
+def listar_maritimos(
+    skip: int = 0, 
+    limit: int = 100, 
+    db: Session = Depends(get_db),
+    cliente_id: int = Depends(get_current_cliente_id)
+):
+    return [_map_maritimo(dto) for dto in uc_listar_envios_maritimos(db, cliente_id, skip, limit)]
 
 
 @router_maritimos.get("/{envio_id}", response_model=EnvioMaritimoResponse, dependencies=[_auth])

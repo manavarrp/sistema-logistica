@@ -85,9 +85,9 @@ def uc_crear_envio_terrestre(db: Session, dto: CrearEnvioTerrestreDTO) -> EnvioT
 
 
 def uc_listar_envios_terrestres(
-    db: Session, skip: int, limit: int
+    db: Session, cliente_id: int, skip: int, limit: int
 ) -> list[EnvioTerrestreDTO]:
-    rows = listar_envios_terrestres(db, skip, limit)
+    rows = listar_envios_terrestres(db, cliente_id, skip, limit)
     return [_to_terrestre_dto(e, d) for e, d in rows]
 
 
@@ -122,9 +122,9 @@ def uc_crear_envio_maritimo(db: Session, dto: CrearEnvioMaritimoDTO) -> EnvioMar
 
 
 def uc_listar_envios_maritimos(
-    db: Session, skip: int, limit: int
+    db: Session, cliente_id: int, skip: int, limit: int
 ) -> list[EnvioMaritimoDTO]:
-    rows = listar_envios_maritimos(db, skip, limit)
+    rows = listar_envios_maritimos(db, cliente_id, skip, limit)
     return [_to_maritimo_dto(e, d) for e, d in rows]
 
 
